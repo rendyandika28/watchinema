@@ -48,7 +48,7 @@ export default {
         { property: "og:title", content: `${g} — Film · Watchinema` },
         { property: "og:description", content: `Koleksi film genre ${g} di Watchinema.` },
         { property: "og:type", content: "website" },
-        { property: "og:url", content: `https://watchinema.app/genres/${encodeURIComponent(g)}` },
+        { property: "og:url", content: `${window.location.origin}/genres/${encodeURIComponent(g)}` },
         { name: "twitter:card", content: "summary" },
       ],
     };
@@ -69,15 +69,17 @@ export default {
         : "";
     },
   },
-  async loadGenre(link) {
-    this.fetchUrl = link;
-    this.loading = true;
-    const { data } = await getCached(link);
-    this.movies = data.results || [];
-    this.loading = false;
-    this.showingBanner = this.movies[
-      Math.floor(Math.random() * this.movies.length - 1)
-    ]?.backdrop_path;
+  methods: {
+    async loadGenre(link) {
+      this.fetchUrl = link;
+      this.loading = true;
+      const { data } = await getCached(link);
+      this.movies = data.results || [];
+      this.loading = false;
+      this.showingBanner = this.movies[
+        Math.floor(Math.random() * this.movies.length)
+      ]?.backdrop_path;
+    },
   },
   async mounted() {
     await this.loadGenre(this.$route.query.link);

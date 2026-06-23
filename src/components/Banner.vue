@@ -37,8 +37,9 @@
           <Button
             v-if="!trailerUrl"
             @button-click="playVideo"
-            title="Watch Trailer"
+            :title="trailerLoading ? 'Loading...' : 'Watch Trailer'"
             variant="secondary"
+            :disabled="trailerLoading"
           />
         </div>
       </div>
@@ -65,9 +66,9 @@
 
     <div v-if="trailerUrl" class="banner__cinema">
       <div class="banner__screen">
-        <youtube
-          :video-id="trailerUrl"
-          ref="youtube"
+        <iframe
+          :src="'https://www.youtube.com/embed/' + trailerUrl"
+          allowfullscreen
           width="100%"
           height="100%"
         />
@@ -96,6 +97,7 @@ export default {
       loading: true,
       truncate,
       trailerUrl: null,
+      trailerLoading: false,
     };
   },
   methods: {
@@ -107,22 +109,20 @@ export default {
       });
     },
     async playVideo() {
-      if (this.trailerUrl) {
-        this.trailerUrl = null;
-        return;
-      }
+      this.trailerLoading = true;
       const key = await getTrailerKey(this.heroBanner.id);
+      this.trailerLoading = false;
       if (key) {
         this.trailerUrl = key;
       } else {
-        this.$swal("Sorry", "Trailer not available", "warning");
+        alert("Trailer not available");
       }
     },
   },
   async mounted() {
     const request = await getCached(requests.fetchTrending);
     this.heroBanner = request.data.results[
-      Math.floor(Math.random() * request.data.results.length - 1)
+      Math.floor(Math.random() * request.data.results.length)
     ];
     this.loading = false;
   },
@@ -138,6 +138,7 @@ export default {
   background-position: center top !important;
   display: flex;
   align-items: flex-end;
+  background-color: var(--bg-card);
 }
 
 .banner__content {
@@ -279,7 +280,6 @@ export default {
   background: #000;
 }
 
-.banner__screen youtube,
 .banner__screen iframe {
   width: 100%;
   height: 100%;

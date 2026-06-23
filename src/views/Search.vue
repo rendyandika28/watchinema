@@ -40,7 +40,7 @@ export default {
         { property: "og:title", content: `"${q}" — Pencarian · Watchinema` },
         { property: "og:description", content: `Hasil pencarian film "${q}" di Watchinema.` },
         { property: "og:type", content: "website" },
-        { property: "og:url", content: `https://watchinema.app/search/${encodeURIComponent(q)}` },
+        { property: "og:url", content: `${window.location.origin}/search/${encodeURIComponent(q)}` },
         { name: "twitter:card", content: "summary" },
       ],
     };

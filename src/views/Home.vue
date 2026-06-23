@@ -34,7 +34,7 @@ export default {
       { property: "og:title", content: "Watchinema — Bioskop Mini dalam Genggaman" },
       { property: "og:description", content: "Jelajahi ribuan trailer film dan series. Temukan tontonan baru dari berbagai genre tanpa ribet login." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://watchinema.app" },
+      { property: "og:url", content: window.location.origin },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   },

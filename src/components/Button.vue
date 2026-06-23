@@ -1,7 +1,8 @@
 <template>
   <button
-    @click.prevent="$emit('button-click')"
+    @click.prevent="disabled || $emit('button-click')"
     :class="['btn', 'btn--' + variant, { 'btn--compact': compact }]"
+    :disabled="disabled"
   >
     {{ title }}
   </button>
@@ -14,6 +15,7 @@ export default {
     title: String,
     variant: { type: String, default: "primary" },
     compact: Boolean,
+    disabled: Boolean,
   },
 };
 </script>
@@ -57,5 +59,9 @@ export default {
 .btn--secondary:hover {
   background: rgba(232, 221, 208, 0.14);
   border-color: var(--accent-gold);
+}
+.btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 </style>

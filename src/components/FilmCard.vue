@@ -56,6 +56,7 @@ export default {
   border-radius: var(--radius-lg);
   background-size: cover !important;
   background-position: center !important;
+  background-color: var(--bg-card);
   cursor: pointer;
   overflow: hidden;
   border: 1px solid var(--border);

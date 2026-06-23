@@ -30,8 +30,9 @@
             <Button
               v-if="!trailerUrl"
               @button-click="playVideo"
-              title="Watch Trailer"
+              :title="trailerLoading ? 'Loading...' : 'Watch Trailer'"
               variant="secondary"
+              :disabled="trailerLoading"
             />
             <Button
               @button-click="handleClickFavorite"
@@ -68,7 +69,7 @@
     </div>
     <div class="details__cinema" v-if="trailerUrl">
       <div class="details__screen">
-        <youtube :video-id="trailerUrl" ref="youtube" width="100%" height="100%" />
+        <iframe :src="'https://www.youtube.com/embed/' + trailerUrl" allowfullscreen width="100%" height="100%" />
         <button class="details__close" @click="trailerUrl = null" aria-label="Close trailer">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
@@ -91,20 +92,7 @@ import RowFilm from "../components/RowFilm";
 import Skeleton from "../components/Skeleton";
 import { getCached } from "../data/axios";
 import { getTrailerKey } from "../utils/trailer";
-
-const WATCHLIST_KEY = "watchinema_watchlist";
-
-function getWatchlist() {
-  try {
-    return JSON.parse(localStorage.getItem(WATCHLIST_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
-
-function saveWatchlist(list) {
-  localStorage.setItem(WATCHLIST_KEY, JSON.stringify(list));
-}
+import { get as getWatchlist, save as saveWatchlist } from "../utils/watchlist";
 
 export default {
   name: "Details",
@@ -124,7 +112,7 @@ export default {
         { property: "og:description", content: desc },
         { property: "og:image", content: poster },
         { property: "og:type", content: "video.movie" },
-        { property: "og:url", content: `https://watchinema.app/details/${this.movieID}` },
+        { property: "og:url", content: `${window.location.origin}/details/${this.movieID}` },
         { name: "twitter:card", content: "summary_large_image" },
       ],
     };
@@ -140,6 +128,7 @@ export default {
       baseUrl: "https://image.tmdb.org/t/p/original/",
       trailerUrl: "",
       isMatch: false,
+      trailerLoading: false,
     };
   },
   methods: {
@@ -151,11 +140,13 @@ export default {
     },
     async playVideo() {
       if (this.trailerUrl) return;
+      this.trailerLoading = true;
       const key = await getTrailerKey(this.movieID);
+      this.trailerLoading = false;
       if (key) {
         this.trailerUrl = key;
       } else {
-        this.$swal("Sorry", "Trailer not available", "warning");
+        alert("Trailer not available");
       }
     },
     handleClickFavorite() {
@@ -169,13 +160,13 @@ export default {
           timestamp: Date.now(),
         });
         saveWatchlist(list);
-        this.$toast.success("Saved to Watchlist", { duration: 3000, position: "top" });
+        alert("Saved to Watchlist");
         this.isMatch = true;
       } else {
         const idx = list.findIndex((m) => m.id === this.movieID);
         if (idx !== -1) list.splice(idx, 1);
         saveWatchlist(list);
-        this.$toast.warning("Removed from Watchlist", { duration: 3000, position: "top" });
+        alert("Removed from Watchlist");
         this.isMatch = false;
       }
     },
@@ -331,7 +322,6 @@ export default {
   background: #000;
 }
 
-.details__screen youtube,
 .details__screen iframe {
   width: 100%;
   height: 100%;

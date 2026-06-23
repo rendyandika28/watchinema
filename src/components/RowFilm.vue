@@ -12,32 +12,34 @@
           class="row__see-all"
         >View All</router-link>
       </div>
-      <div class="row__track">
-        <router-link
-          :key="movie.id"
-          v-for="movie in movies.slice(0, 8)"
-          :to="{
-            name: 'Details',
-            params: { id: movie.id },
-            query: { link: fetchUrl },
-          }"
-          class="row__card"
-        >
-          <div class="row__frame">
-            <img
-              v-if="movie.poster_path"
-              :src="baseUrl + (isRowPosters ? movie.poster_path : movie.backdrop_path)"
-              :alt="movie.title || movie.name"
-              loading="lazy"
-            />
-            <div class="row__overlay">
-              <span>Details</span>
+      <div class="row__track-wrap">
+        <div class="row__track">
+          <router-link
+            :key="movie.id"
+            v-for="movie in movies.slice(0, 8)"
+            :to="{
+              name: 'Details',
+              params: { id: movie.id },
+              query: { link: fetchUrl },
+            }"
+            class="row__card"
+          >
+            <div class="row__frame">
+              <img
+                v-if="movie.poster_path"
+                :src="baseUrl + (isRowPosters ? movie.poster_path : movie.backdrop_path)"
+                :alt="movie.title || movie.name"
+                loading="lazy"
+              />
+              <div class="row__overlay">
+                <span>Details</span>
+              </div>
             </div>
-          </div>
-          <p class="row__label">
-            {{ movie.title || movie.name || movie.original_name }}
-          </p>
-        </router-link>
+            <p class="row__label">
+              {{ movie.title || movie.name || movie.original_name }}
+            </p>
+          </router-link>
+        </div>
       </div>
     </div>
     <div class="row row--sk" v-else-if="loading">
@@ -45,10 +47,12 @@
         <Skeleton height="24px" width="160px" radius="4px" />
         <Skeleton height="16px" width="60px" radius="4px" />
       </div>
-      <div class="row__track">
-        <div class="row__card row__card--sk" v-for="i in 8" :key="i">
-          <Skeleton width="170px" height="255px" radius="var(--radius-md)" />
-          <Skeleton height="16px" width="120px" radius="4px" />
+      <div class="row__track-wrap">
+        <div class="row__track">
+          <div class="row__card row__card--sk" v-for="i in 8" :key="i">
+            <Skeleton width="170px" height="255px" radius="var(--radius-md)" />
+            <Skeleton height="16px" width="120px" radius="4px" />
+          </div>
         </div>
       </div>
     </div>
@@ -123,7 +127,7 @@ export default {
   display: flex;
   gap: 14px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding-bottom: 16px;
   scroll-snap-type: x mandatory;
 }
 .row__track::-webkit-scrollbar {
@@ -132,6 +136,21 @@ export default {
 .row__track::-webkit-scrollbar-thumb {
   background: var(--bg-muted);
   border-radius: 2px;
+}
+
+.row__track-wrap {
+  position: relative;
+}
+.row__track-wrap::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 8px;
+  width: 40px;
+  background: linear-gradient(to left, var(--bg-auditorium), transparent);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .row__card {

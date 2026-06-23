@@ -15,7 +15,7 @@
           @keyup.enter="searchMovie"
         />
       </div>
-      <router-link to="/user/watchlist" class="header__link" @click.native="close">Watchlist</router-link>
+      <router-link to="/watchlist" class="header__link" @click.native="close">Watchlist</router-link>
     </div>
     <button class="header__menu-btn" :class="{ 'header__menu-btn--open': menuOpen }" @click="menuOpen = !menuOpen" aria-label="Menu">
       <span></span>
@@ -33,6 +33,7 @@ export default {
       menuOpen: false,
       scrolled: false,
       searchQuery: "",
+      searching: false,
     };
   },
   methods: {
@@ -40,13 +41,15 @@ export default {
       this.menuOpen = false;
     },
     searchMovie() {
-      if (!this.searchQuery.trim()) return;
+      if (!this.searchQuery.trim() || this.searching) return;
+      this.searching = true;
       this.$router.push({
         name: "Search",
         params: { name: this.searchQuery.trim() },
       });
       this.searchQuery = "";
       this.close();
+      this.$nextTick(() => { this.searching = false; });
     },
   },
   created() {
