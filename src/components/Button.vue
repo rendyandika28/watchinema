@@ -1,5 +1,8 @@
 <template>
-  <button @click.prevent="$emit('button-click')" :style="styling">
+  <button
+    @click.prevent="$emit('button-click')"
+    :class="['btn', 'btn--' + variant, { 'btn--compact': compact }]"
+  >
     {{ title }}
   </button>
 </template>
@@ -7,37 +10,52 @@
 <script>
 export default {
   name: "Button",
-  props: ["title", "bcolor", "size"],
-  data() {
-    return {
-      styling: {
-        backgroundColor: this.bcolor,
-        padding: `11px ${this.size === "normal" ? "24px" : "50px"}`,
-      },
-    };
+  props: {
+    title: String,
+    variant: { type: String, default: "primary" },
+    compact: Boolean,
   },
 };
 </script>
 
 <style>
-button {
-  text-transform: uppercase;
+.btn {
   cursor: pointer;
-  color: white;
+  color: var(--text-screenlight);
   outline: none;
   border: none;
-  font-weight: 200;
-  border-radius: 0.4vw;
-  padding: 0.5rem 2rem;
-  margin-right: 1rem;
-  transition: all 0.3s;
+  font-family: "Oswald", sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: var(--radius-sm);
+  padding: 12px 44px;
+  transition: var(--transition);
 }
 
-button:hover {
-  opacity: 0.8;
+.btn:hover {
+  transform: translateY(-1px);
 }
 
-button:focus {
-  outline: none;
+.btn--compact {
+  padding: 10px 22px;
+}
+
+.btn--primary {
+  background: var(--curtain-red);
+}
+.btn--primary:hover {
+  background: var(--curtain-red-hover);
+  box-shadow: 0 4px 20px var(--curtain-red-glow);
+}
+
+.btn--secondary {
+  background: rgba(232, 221, 208, 0.08);
+  border: 1px solid var(--border);
+}
+.btn--secondary:hover {
+  background: rgba(232, 221, 208, 0.14);
+  border-color: var(--accent-gold);
 }
 </style>

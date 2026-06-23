@@ -2,25 +2,29 @@
   <div class="genres">
     <Header />
     <div
-      class="genres__header"
+      class="genres__hero"
       :style="{
         background:
-          'linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ),url(https://image.tmdb.org/t/p/original/' +
-          this.showingBanner +
+          'linear-gradient( rgba(13, 10, 7, 0.6), rgba(13, 10, 7, 0.85) ),url(https://image.tmdb.org/t/p/original/' +
+          showingBanner +
           ')',
       }"
     >
       <h1>{{ titleDisplay }}</h1>
-      <p><span>Watchinema</span> Choice’s</p>
-      <div class="genres__fadeBottom"></div>
+      <p>Pilihan <span>Watchinema</span></p>
     </div>
-    <div class="genres__content">
+    <div class="genres__grid" v-if="!loading">
       <FilmCard
         v-for="movie in movies"
         :key="movie.id"
         :movie="movie"
         :fetchUrl="fetchUrl"
-      ></FilmCard>
+      />
+    </div>
+    <div class="genres__sk" v-else>
+      <div v-for="i in 12" :key="i">
+        <Skeleton width="380px" height="220px" radius="var(--radius-lg)" />
+      </div>
     </div>
     <Footer />
   </div>
@@ -29,94 +33,120 @@
 <script>
 import Header from "../components/Header";
 import FilmCard from "../components/FilmCard";
+import Skeleton from "../components/Skeleton";
 import axios from "../data/axios";
 import Footer from "../components/Footer";
 
 export default {
   name: "Genres",
-  props: ["link", "genres"],
-  components: {
-    Header,
-    FilmCard,
-    Footer,
+  metaInfo() {
+    const g = this.titleDisplay || "Genre";
+    return {
+      title: `${g} — Film · Watchinema`,
+      meta: [
+        { name: "description", content: `Koleksi film genre ${g} — tonton trailer dan temukan film favorit baru di Watchinema.` },
+        { property: "og:title", content: `${g} — Film · Watchinema` },
+        { property: "og:description", content: `Koleksi film genre ${g} di Watchinema.` },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: `https://watchinema.app/genres/${encodeURIComponent(g)}` },
+        { name: "twitter:card", content: "summary" },
+      ],
+    };
   },
+  components: { Header, FilmCard, Skeleton, Footer },
   data() {
     return {
       fetchUrl: "",
-      API_KEY: "f15d819549589d708cf177ff07116a0a",
       movies: [],
-      showingBanner: {},
+      loading: true,
+      showingBanner: null,
     };
-  },
-  methods: {
-    setMovies(data) {
-      this.movies = data;
-    },
-    fetchData: async (fetchUrl) => {
-      const request = await axios.get(fetchUrl);
-      return request.data.results;
-    },
   },
   computed: {
     titleDisplay() {
-      return this.$route.params.genres;
+      return typeof this.$route.params.genres === "string"
+        ? this.$route.params.genres.replace("Movies", "").trim()
+        : "";
     },
   },
-  async mounted() {
-    this.fetchUrl = this.$route.query.link;
-    this.setMovies(await this.fetchData(this.fetchUrl));
-    this.showingBanner = await this.movies[
+  async loadGenre(link) {
+    this.fetchUrl = link;
+    this.loading = true;
+    const { data } = await axios.get(link);
+    this.movies = data.results || [];
+    this.loading = false;
+    this.showingBanner = this.movies[
       Math.floor(Math.random() * this.movies.length - 1)
-    ].backdrop_path;
+    ]?.backdrop_path;
+  },
+  async mounted() {
+    await this.loadGenre(this.$route.query.link);
+  },
+  async beforeRouteUpdate(to, from, next) {
+    await this.loadGenre(to.query.link);
+    next();
   },
 };
 </script>
 
 <style scoped>
-.genres__header {
+.genres {
+  min-height: 100vh;
+  background: var(--bg-auditorium);
+}
+
+.genres__hero {
   display: flex;
-  justify-content: center;
   flex-direction: column;
-  padding-left: 7rem;
-  height: 300px;
-  color: rgb(238, 238, 238);
-  background-color: #acacac;
+  justify-content: center;
+  padding-left: 48px;
+  height: 280px;
   background-size: cover !important;
-  position: relative;
+  background-position: center !important;
+}
+.genres__hero h1 {
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+  font-size: 3rem;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+.genres__hero p {
+  color: var(--text-patina);
+  font-size: 15px;
+  margin-top: 4px;
+}
+.genres__hero span {
+  color: var(--accent-gold);
+  font-weight: 600;
 }
 
-.genres__fadeBottom {
-  position: absolute;
-  content: "";
-  background-image: linear-gradient(
-    180deg,
-    transparent,
-    rgba(37, 37, 37, 0.61),
-    #111
-  );
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 170px;
-  z-index: 0;
-}
-
-.genres__header h1 {
-  z-index: 1;
-  font-size: 40px;
-}
-
-.genres__header p {
-  z-index: 1;
-}
-.genres__header span {
-  color: #800000;
-}
-
-.genres__content {
+.genres__grid {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  margin: 50px 0;
+  gap: 8px;
+  padding: 40px 48px;
+}
+
+.genres__sk {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 40px 48px;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .genres__hero {
+    padding-left: 24px;
+  }
+  .genres__hero h1 {
+    font-size: 2rem;
+  }
+  .genres__grid {
+    padding: 20px 16px;
+  }
 }
 </style>

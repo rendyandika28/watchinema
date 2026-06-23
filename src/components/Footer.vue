@@ -1,13 +1,9 @@
 <template>
-  <footer>
-    <img src="../assets/logo-footer.png" alt="footer-logo" />
-    <ul>
-      <li>About Us</li>
-      <li>|</li>
-      <li>Social Media</li>
-      <li>|</li>
-      <li>Terms of Use</li>
-    </ul>
+  <footer class="footer">
+    <div class="footer__inner">
+      <img class="footer__logo" src="../assets/logo-footer.png" alt="Watchinema" />
+      <p class="footer__copy">© Watchinema</p>
+    </div>
   </footer>
 </template>
 
@@ -16,35 +12,33 @@ export default {};
 </script>
 
 <style scoped>
-footer {
+.footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg-seatback);
+}
+.footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
-  height: 100px;
-  background-color: #000;
+  justify-content: space-between;
+  padding: 24px 32px;
 }
-
-img {
+.footer__logo {
   object-fit: contain;
+  opacity: 0.4;
 }
-
-ul {
-  display: flex;
-}
-
-ul li {
-  color: rgba(255, 255, 255, 0.801);
-  list-style: none;
-  margin-right: 10px;
+.footer__copy {
+  color: var(--text-dim);
+  font-size: 12px;
+  font-family: "JetBrains Mono", monospace;
 }
 
 @media (max-width: 567px) {
-  footer {
-    padding: unset;
-    padding-top: 20px;
+  .footer__inner {
     flex-direction: column;
-    justify-content: unset;
+    gap: 12px;
+    text-align: center;
   }
 }
 </style>

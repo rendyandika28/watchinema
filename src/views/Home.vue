@@ -2,43 +2,23 @@
   <div class="home">
     <Header />
     <Banner />
-    <RowFilm
-      titleRow="Trending Now"
-      :fetchUrl="fetchTrending"
-      :isRowPosters="true"
-    ></RowFilm>
-    <RowFilm
-      titleRow="Top Rated"
-      :fetchUrl="fetchTopRated"
-      :isRowTopRated="true"
-    ></RowFilm>
-    <div class="home__expandBtn">
-      <h3 class="accordion" @click="expandMenu">
-        See Movies By Genres
-        <span>
-          <img src="../assets/down-arrow.png" alt="icon" width="13" />
-        </span>
-      </h3>
-    </div>
-    <div class="panel">
-      <RowFilm titleRow="Action Movies" :fetchUrl="fetchActionMovies"></RowFilm>
-      <RowFilm titleRow="Comedy Movies" :fetchUrl="fetchComedyMovies"></RowFilm>
-      <RowFilm titleRow="Horror Movies" :fetchUrl="fetchHorrorMovies"></RowFilm>
-      <RowFilm
-        titleRow="Romance Movies"
-        :fetchUrl="fetchRomanceMovies"
-      ></RowFilm>
-      <RowFilm
-        titleRow="Documentaries Movies"
-        :fetchUrl="fetchDocumentaries"
-      ></RowFilm>
+    <div class="home__content">
+      <RowFilm titleRow="Trending Now" :fetchUrl="fetchTrending" :isRowPosters="true" />
+      <RowFilm titleRow="Top Rated" :fetchUrl="fetchTopRated" />
+      <div class="home__genres">
+        <h2 class="home__genres-title">Jelajahi Genre</h2>
+        <RowFilm titleRow="Action" :fetchUrl="fetchActionMovies" />
+        <RowFilm titleRow="Comedy" :fetchUrl="fetchComedyMovies" />
+        <RowFilm titleRow="Horror" :fetchUrl="fetchHorrorMovies" />
+        <RowFilm titleRow="Romance" :fetchUrl="fetchRomanceMovies" />
+        <RowFilm titleRow="Documentary" :fetchUrl="fetchDocumentaries" />
+      </div>
     </div>
     <Footer />
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
 import Header from "../components/Header";
 import Banner from "../components/Banner";
 import RowFilm from "../components/RowFilm";
@@ -47,55 +27,49 @@ import requests from "../data/request.js";
 
 export default {
   name: "Home",
+  metaInfo: {
+    title: "Watchinema — Bioskop Mini dalam Genggaman",
+    meta: [
+      { name: "description", content: "Jelajahi ribuan trailer film dan series. Temukan tontonan baru dari berbagai genre tanpa ribet login." },
+      { property: "og:title", content: "Watchinema — Bioskop Mini dalam Genggaman" },
+      { property: "og:description", content: "Jelajahi ribuan trailer film dan series. Temukan tontonan baru dari berbagai genre tanpa ribet login." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://watchinema.app" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  },
   components: { Header, Banner, RowFilm, Footer },
   data() {
     return {
       ...requests,
     };
   },
-  methods: {
-    expandMenu(e) {
-      e.target.classList.toggle("active");
-      const panel = document.querySelector(".panel");
-      if (panel.style.maxHeight) {
-        panel.style.maxHeight = null;
-      } else {
-        panel.style.maxHeight = panel.scrollHeight + "px";
-      }
-    },
-  },
 };
 </script>
 
 <style scoped>
-.home__expandBtn {
-  height: 60px;
-  background-color: #000;
-  text-align: center;
-  line-height: 60px;
-  color: whitesmoke;
+.home {
+  background: var(--bg-auditorium);
+  min-height: 100vh;
 }
 
-.home__expandBtn span {
-  margin-left: 5px;
+.home__content {
+  padding-bottom: 40px;
 }
 
-.accordion {
-  background-color: rgb(0, 0, 0);
-  cursor: pointer;
-  border: none;
-  outline: none;
-  transition: all 0.5s;
+.home__genres {
+  border-top: 1px solid var(--border);
+  margin-top: 32px;
+  padding-top: 8px;
 }
-.accordion:hover,
-.active {
-  background-color: rgb(34, 34, 34);
-}
-.panel {
-  padding: 0 10px;
-  background-color: white;
-  max-height: 0;
-  transition: max-height 0.5s;
-  overflow: hidden;
+
+.home__genres-title {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-patina);
+  padding: 16px 48px;
 }
 </style>

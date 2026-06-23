@@ -1,301 +1,201 @@
 <template>
-  <div class="header" :class="{ header__black: headerBlack }">
-    <router-link to="/">
-      <img class="header__image" src="../assets/logo.png" alt />
+  <div class="header" :class="{ 'header--scrolled': scrolled }">
+    <router-link to="/" class="header__brand">
+      <img class="header__logo" src="../assets/logo.png" alt="Watchinema" />
     </router-link>
-    <div class="header__items" :class="{ slide: toggle }">
-      <input
-        type="text"
-        class="header__search"
-        placeholder="Search film here..."
-        :class="{ transparentSearch: !headerBlack }"
-        v-model="searchQuery"
-        @keyup.enter="searchMovie"
-      />
-      <div class="dropdown">
-        <p class="header__greeting">
-          Halo
-          <span>
-            <strong>{{
-              newUserDisplayName ||
-              userData.displayName ||
-              userDataLocalStorage.username
-            }}</strong>
-          </span>
-        </p>
-        <div class="dropDownContent">
-          <router-link
-            :to="{
-              name: 'UserProfile',
-              params: {
-                userid:
-                  newUserDisplayName ||
-                  userData.displayName ||
-                  userDataLocalStorage.username,
-              },
-            }"
-            ><a>My Profile</a>
-          </router-link>
-        </div>
+    <div class="header__items" :class="{ 'header__items--open': menuOpen }">
+      <div class="header__search-wrapper">
+        <svg class="header__search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input
+          type="text"
+          class="header__search"
+          placeholder="Cari film..."
+          v-model="searchQuery"
+          @keyup.enter="searchMovie"
+        />
       </div>
-      <Button
-        @button-click="handleSignOut"
-        title="sign out"
-        bcolor="#800000"
-        size="normal"
-      />
+      <router-link to="/user/watchlist" class="header__link">Watchlist</router-link>
     </div>
-
-    <div
-      class="menu-toggle"
-      :class="{ whiteMenu: toggle }"
-      @click="toggle = !toggle"
-    >
+    <button class="header__menu-btn" @click="menuOpen = !menuOpen" aria-label="Menu">
       <span></span>
       <span></span>
       <span></span>
-      <input type="checkbox" />
-    </div>
+    </button>
   </div>
 </template>
 
 <script>
-import Button from "./Button";
-import firebase from "../utils/firebase";
-import { mapGetters, mapMutations } from "vuex";
 export default {
   name: "Header",
-  components: {
-    Button,
-  },
   data() {
     return {
-      toggle: false,
-      headerBlack: false,
+      menuOpen: false,
+      scrolled: false,
       searchQuery: "",
-      userDataLocalStorage: JSON.parse(localStorage.getItem("user")),
     };
   },
   methods: {
-    ...mapMutations(["setUserData"]),
-
     searchMovie() {
+      if (!this.searchQuery.trim()) return;
       this.$router.push({
         name: "Search",
-        params: { name: this.searchQuery },
+        params: { name: this.searchQuery.trim() },
       });
-    },
-    handleSignOut() {
-      firebase.auth().signOut();
-      this.$store.commit("setUserData", null);
-      localStorage.removeItem("user");
-      localStorage.removeItem("loglevel:webpack-dev-server");
-      this.$router.push({
-        name: "Login",
-      });
+      this.searchQuery = "";
     },
   },
   created() {
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 100) {
-        this.headerBlack = true;
-      } else this.headerBlack = false;
-    });
+    this._onScroll = () => { this.scrolled = window.scrollY > 60; };
+    window.addEventListener("scroll", this._onScroll);
   },
-  computed: {
-    ...mapGetters(["userData", "newUserDisplayName"]),
+  destroyed() {
+    window.removeEventListener("scroll", this._onScroll);
   },
-  watch: {},
 };
 </script>
 
 <style scoped>
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropDownContent {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  /* text-decoration: none; */
-}
-.dropDownContent a {
-  color: black;
-  padding: 8px 5px;
-  text-decoration: none !important;
-  display: block;
-}
-
-.dropDownContent a:hover {
-  background-color: #f1f1f1;
-}
-.dropdown:hover .dropDownContent {
-  display: block;
-  transition: all ease-in 0.3s;
-}
-.white {
-  color: white;
-}
-
 .header {
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  padding: 15px;
+  justify-content: space-between;
+  padding: 14px 32px;
   position: fixed;
   top: 0;
-  z-index: 99;
   left: 0;
   right: 0;
-
-  transition-timing-function: ease-in;
-  transition: all 0.5s;
+  z-index: 100;
+  transition: var(--transition);
 }
 
-.header__black {
-  background-color: #111;
+.header--scrolled {
+  background: rgba(13, 10, 7, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.header__logo {
+  object-fit: contain;
+  width: 120px;
+  transition: var(--transition);
+}
+.header--scrolled .header__logo {
+  width: 100px;
 }
 
 .header__items {
+  display: flex;
   align-items: center;
-  flex: 0.9;
+  gap: 28px;
+}
+
+.header__search-wrapper {
+  position: relative;
   display: flex;
-  flex-direction: row;
-  justify-content: space-around;
+  align-items: center;
 }
-
-.header__image {
-  object-fit: contain;
-  width: 140px;
+.header__search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-patina);
+  pointer-events: none;
 }
-
 .header__search {
-  flex: 0.8;
-  border-radius: 5px;
-  border: 1px solid lightgray;
-  height: 32px;
-  padding-left: 20px;
-  box-sizing: border-box;
-  transition: all 0.5s;
-  color: black;
+  width: 260px;
+  padding: 10px 14px 10px 40px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-screenlight);
+  font-family: "Lora", serif;
+  font-size: 14px;
+  transition: var(--transition);
 }
-.transparentSearch {
-  background-color: unset;
-  border: unset;
-  border: 0.2px solid lightgray;
-  transition: all 0.5s;
-  color: white;
+.header--scrolled .header__search {
+  background: var(--bg-seatback);
 }
-
-.transparentSearch::placeholder {
-  color: white;
+.header__search::placeholder {
+  color: var(--text-patina);
 }
-
 .header__search:focus {
-  border: 0.5px solid #800000;
   outline: none;
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px var(--accent-gold-glow);
 }
 
-.header__greeting {
-  display: flex;
-  flex-direction: column;
-  font-weight: 200;
-  font-size: 13px;
-  color: white;
-  border: none;
-  cursor: pointer;
+.header__link {
+  color: var(--text-patina);
+  text-decoration: none;
+  font-family: "Oswald", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.header__link:hover {
+  color: var(--accent-gold);
+  border-color: var(--accent-gold);
+  background: rgba(212, 160, 23, 0.08);
 }
 
-.menu-toggle {
+.header__menu-btn {
   display: none;
   flex-direction: column;
-  height: 18px;
-  justify-content: space-between;
-  position: relative;
-  border: 0.5px solid gray;
+  gap: 5px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   padding: 10px;
-  border-radius: 10px;
-}
-.menu-toggle input {
-  position: absolute;
-  width: 40px;
-  height: 28px;
-  left: -6px;
-  top: -5px;
-  opacity: 0;
   cursor: pointer;
-  z-index: 2;
 }
-
-.menu-toggle span {
+.header__menu-btn span {
   display: block;
-  width: 28px;
-  height: 3px;
-  background-color: black;
-  border-radius: 3px;
-  transition: all ease-in 0.3s;
+  width: 22px;
+  height: 2px;
+  background: var(--text-screenlight);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+.header__menu-btn:hover span {
+  background: var(--accent-gold);
 }
 
-.whiteMenu span {
-  display: block;
-  width: 28px;
-  height: 3px;
-  background-color: white;
-  border-radius: 3px;
-  transition: all ease-in 0.3s;
-}
-
-@media (max-width: 576px) {
-  .menu-toggle {
-    display: flex;
-  }
-
+@media (max-width: 768px) {
   .header {
-    justify-content: space-between;
-    padding: 10px 15px;
+    padding: 10px 16px;
   }
-
   .header__items {
-    position: absolute;
-    right: 0;
+    position: fixed;
     top: 0;
+    right: 0;
+    width: 70%;
     height: 100vh;
-    width: 50%;
     flex-direction: column;
-    justify-content: start;
-    border: 1px solid black;
+    justify-content: flex-start;
     align-items: stretch;
-    background-color: black;
-    color: white;
-    padding: 10px;
-    padding-top: 70px;
-    z-index: -10;
+    padding: 80px 24px 24px;
+    gap: 20px;
+    background: rgba(13, 10, 7, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     transform: translateX(100%);
-    transition: all ease-in-out 0.7s;
-    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border-left: 1px solid var(--border);
   }
-
-  .header__items.slide {
-    opacity: 1;
+  .header__items--open {
     transform: translateX(0);
   }
-
-  .header__greeting {
-    margin: 30px 0;
-    flex-direction: row;
-  }
-
-  .header__greeting span {
-    margin-left: 5px;
-  }
-
   .header__search {
-    flex: none;
+    width: 100%;
+  }
+  .header__menu-btn {
+    display: flex;
   }
 }
 </style>

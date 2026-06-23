@@ -1,182 +1,329 @@
 <template>
-  <div
-    class="banner"
-    :style="{
-      background:
-        'linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ),' +
-        bannerBackground +
-        '',
-    }"
-  >
-    <div class="banner__contents">
-      <h1 class="banner__title">
-        {{ heroBanner.title || heroBanner.name || heroBanner.original_name }}
-      </h1>
-      <p class="banner__directors">Rating: {{ heroBanner.vote_average }}/10</p>
-      <p class="banner__description">
-        {{ truncate(heroBanner.overview, 200) }}
-      </p>
+  <div class="banner">
+    <div
+      class="banner__hero"
+      :style="!loading && heroBanner.backdrop_path ? {
+        background:
+          'linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.85) ),url(https://image.tmdb.org/t/p/original/' +
+          heroBanner.backdrop_path + ')' || null,
+      } : {}"
+    >
+      <div class="banner__content" v-if="!loading">
+        <div class="banner__marquee">
+          <h1 class="banner__title">
+            {{ heroBanner.title || heroBanner.name || heroBanner.original_name }}
+          </h1>
+        </div>
+        <div class="banner__meta">
+          <span class="banner__rating">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            {{ heroBanner.vote_average }}
+          </span>
+          <span class="banner__sep">|</span>
+          <span class="banner__year" v-if="heroBanner.release_date">{{
+            heroBanner.release_date.slice(0, 4)
+          }}</span>
+        </div>
+        <p class="banner__desc">
+          {{ truncate(heroBanner.overview, 200) }}
+        </p>
+        <div class="banner__actions">
+          <Button
+            @button-click="detailMovieBanner(heroBanner.id)"
+            title="Details"
+            variant="secondary"
+            compact
+          />
+          <Button
+            v-if="!trailerUrl"
+            @button-click="playVideo"
+            title="Watch Trailer"
+            variant="secondary"
+          />
+        </div>
+      </div>
+      <div class="banner__skeleton" v-else>
+        <Skeleton height="72px" width="520px" radius="var(--radius-md)" />
+        <div class="banner__sk-meta">
+          <Skeleton width="60px" height="18px" radius="4px" />
+          <Skeleton width="40px" height="18px" radius="4px" />
+        </div>
+        <div class="banner__sk-desc">
+          <Skeleton height="14px" />
+          <Skeleton height="14px" width="85%" />
+          <Skeleton height="14px" width="65%" />
+        </div>
+        <div class="banner__actions">
+          <Skeleton width="120px" height="40px" radius="var(--radius-sm)" />
+          <Skeleton width="160px" height="48px" radius="var(--radius-sm)" />
+        </div>
+      </div>
+      <div class="banner__gradient"></div>
+    </div>
 
-      <div class="banner__buttons">
-        <Button
-          @button-click="detailMovieBanner(heroBanner.id)"
-          title="Details"
-          bcolor="#333"
-          size="normal"
-        ></Button>
-        <Button
-          v-if="showFilm"
-          @button-click="playVideo"
-          title="Watch Trailers"
-          bcolor="#333"
-          size
-        ></Button>
+    <div v-if="trailerUrl" class="banner__cinema">
+      <div class="banner__screen">
+        <youtube
+          :video-id="trailerUrl"
+          ref="youtube"
+          width="100%"
+          height="100%"
+        />
+        <button class="banner__close" @click="trailerUrl = null" aria-label="Close trailer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
       </div>
     </div>
-    <div class="banner__fadeBottom"></div>
-    <youtube
-      class="frameVideo"
-      v-if="trailerUrl && heroBanner"
-      :video-id="trailerUrl"
-      width="100%"
-      height="460"
-    ></youtube>
   </div>
 </template>
 
 <script>
 import Button from "./Button";
+import Skeleton from "./Skeleton";
 import axios from "../data/axios.js";
 import requests from "../data/request.js";
 import { truncate } from "../utils/utils";
-import movieTrailer from "movie-trailer";
+import { getTrailerKey } from "../utils/trailer";
 
 export default {
   name: "Banner",
-  components: {
-    Button,
-  },
+  components: { Button, Skeleton },
   data() {
     return {
-      heroBanner: {
-        backdrop_path: null,
-      },
+      heroBanner: { backdrop_path: null },
+      loading: true,
       truncate,
       trailerUrl: null,
     };
   },
   methods: {
-    setBanner(data) {
-      this.heroBanner = data;
-    },
-
-    // Get Data from API
-    fetchData: async () => {
-      const request = await axios.get(requests.fetchTrending);
-      return request.data.results[
-        Math.floor(Math.random() * request.data.results.length - 1)
-      ];
-    },
-
-    // Direct to detail Movie
     detailMovieBanner(id) {
       this.$router.push({
         name: "Details",
-        params: { id: id },
+        params: { id },
         query: { link: requests.fetchTrending },
       });
     },
-
-    // Play the video trailer
-    playVideo() {
+    async playVideo() {
       if (this.trailerUrl) {
         this.trailerUrl = null;
-        console.log("null", this.trailerUrl);
+        return;
+      }
+      const key = await getTrailerKey(this.heroBanner.id);
+      if (key) {
+        this.trailerUrl = key;
       } else {
-        movieTrailer(this.heroBanner.title || "")
-          .then((url) => {
-            const urlParams = new URLSearchParams(new URL(url).search);
-            this.trailerUrl = urlParams.get("v");
-            console.log("fill", this.trailerUrl);
-          })
-          .catch(() => this.$swal("Maaf", "Video tidak ditemukan", "warning"));
+        this.$swal("Sorry", "Trailer not available", "warning");
       }
     },
   },
-
   async mounted() {
-    this.setBanner(await this.fetchData());
-  },
-
-  computed: {
-    bannerExistence() {
-      return this.heroBanner && this.heroBanner.backdrop_path;
-    },
-    showFilm() {
-      return this.trailerUrl ? false : true;
-    },
-    bannerBackground() {
-      return (
-        "url(https://image.tmdb.org/t/p/original/" +
-          this.heroBanner.backdrop_path +
-          ")" || null
-      );
-    },
+    const request = await axios.get(requests.fetchTrending);
+    this.heroBanner = request.data.results[
+      Math.floor(Math.random() * request.data.results.length - 1)
+    ];
+    this.loading = false;
   },
 };
 </script>
 
-<style>
-.banner {
-  color: white;
-  object-fit: contain;
-  min-height: 500px;
-  border: 1px solid black;
+<style scoped>
+.banner__hero {
+  position: relative;
+  min-height: 620px;
   background-size: cover !important;
-  margin-bottom: 50px;
+  background-position: center top !important;
+  display: flex;
+  align-items: flex-end;
 }
 
-.banner__contents {
-  margin-left: 30px;
-  padding-top: 140px;
-  height: 190px;
+.banner__content {
+  position: relative;
+  z-index: 2;
+  max-width: 640px;
+  padding: 0 48px 100px;
 }
 
-.banner__directors {
-  margin-top: 0;
-  margin-bottom: 30px;
+.banner__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0 48px 100px;
+  max-width: 560px;
+  position: relative;
+  z-index: 2;
+}
+
+.banner__sk-meta {
+  display: flex;
+  gap: 10px;
+}
+
+.banner__sk-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 520px;
+}
+
+.banner__marquee {
+  position: relative;
+}
+.banner__marquee::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -10%;
+  width: 120%;
+  height: 200%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(212, 160, 23, 0.12) 0%, transparent 65%);
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .banner__title {
-  font-size: 3rem;
-  font-weight: 800;
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+  font-size: 4rem;
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
 }
 
-.banner__description {
-  width: 45rem;
-  line-height: 1.3;
-  padding-top: 1rem;
-  font-size: 0.9rem;
-  max-width: 560px;
-  height: 80px;
+.banner__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  color: var(--text-patina);
 }
 
-.banner__fadeBottom {
-  height: 10.6rem;
-  background-image: linear-gradient(
-    180deg,
-    transparent,
-    rgba(37, 37, 37, 0.61),
-    #111
-  );
+.banner__rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--accent-gold);
 }
 
-@media (max-width: 567px) {
-  .banner {
-    background-position: center center !important;
+.banner__sep {
+  color: var(--text-dim);
+}
+
+.banner__desc {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-patina);
+  margin-bottom: 28px;
+  max-width: 520px;
+}
+
+.banner__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.banner__gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: linear-gradient(transparent, var(--bg-auditorium));
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Cinema section ── */
+
+.banner__cinema {
+  background: #000;
+  padding: 40px 48px 60px;
+  animation: cinemaFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cinemaFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  .banner__description {
-    max-width: 300px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.banner__screen {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  box-shadow:
+    0 0 0 1px rgba(212, 160, 23, 0.15),
+    0 0 40px rgba(212, 160, 23, 0.08),
+    0 20px 60px rgba(0, 0, 0, 0.5);
+  background: #000;
+}
+
+.banner__screen youtube,
+.banner__screen iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.banner__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  cursor: pointer;
+  transition: var(--transition);
+  opacity: 0.7;
+}
+.banner__close:hover {
+  opacity: 1;
+  background: var(--curtain-red);
+}
+
+@media (max-width: 768px) {
+  .banner__hero {
+    min-height: 480px;
+  }
+  .banner__content {
+    padding: 0 20px 60px;
+  }
+  .banner__skeleton {
+    padding: 0 20px 60px;
+  }
+  .banner__title {
+    font-size: 2.4rem;
+  }
+  .banner__cinema {
+    padding: 20px 16px 40px;
+  }
+  .banner__close {
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
   }
 }
 </style>
