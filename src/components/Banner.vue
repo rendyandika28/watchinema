@@ -43,7 +43,9 @@
         </div>
       </div>
       <div class="banner__skeleton" v-else>
-        <Skeleton height="72px" width="520px" radius="var(--radius-md)" />
+        <div class="banner__sk-title">
+          <Skeleton height="72px" radius="var(--radius-md)" />
+        </div>
         <div class="banner__sk-meta">
           <Skeleton width="60px" height="18px" radius="4px" />
           <Skeleton width="40px" height="18px" radius="4px" />
@@ -80,7 +82,7 @@
 <script>
 import Button from "./Button";
 import Skeleton from "./Skeleton";
-import axios from "../data/axios.js";
+import { getCached } from "../data/axios.js";
 import requests from "../data/request.js";
 import { truncate } from "../utils/utils";
 import { getTrailerKey } from "../utils/trailer";
@@ -118,7 +120,7 @@ export default {
     },
   },
   async mounted() {
-    const request = await axios.get(requests.fetchTrending);
+    const request = await getCached(requests.fetchTrending);
     this.heroBanner = request.data.results[
       Math.floor(Math.random() * request.data.results.length - 1)
     ];
@@ -130,6 +132,7 @@ export default {
 <style scoped>
 .banner__hero {
   position: relative;
+  width: 100%;
   min-height: 620px;
   background-size: cover !important;
   background-position: center top !important;
@@ -149,9 +152,14 @@ export default {
   flex-direction: column;
   gap: 18px;
   padding: 0 48px 100px;
-  max-width: 560px;
+  max-width: 640px;
   position: relative;
   z-index: 2;
+  width: 100%;
+}
+
+.banner__sk-title {
+  max-width: 520px;
 }
 
 .banner__sk-meta {
@@ -305,16 +313,25 @@ export default {
 
 @media (max-width: 768px) {
   .banner__hero {
-    min-height: 480px;
+    min-height: 420px;
+    background-position: center 20% !important;
   }
   .banner__content {
-    padding: 0 20px 60px;
+    padding: 0 16px 50px;
   }
   .banner__skeleton {
-    padding: 0 20px 60px;
+    padding: 0 16px 50px;
+    max-width: 100%;
   }
   .banner__title {
-    font-size: 2.4rem;
+    font-size: 2rem;
+  }
+  .banner__desc {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .banner__actions {
+    flex-wrap: wrap;
   }
   .banner__cinema {
     padding: 20px 16px 40px;
@@ -324,6 +341,18 @@ export default {
     right: 8px;
     width: 32px;
     height: 32px;
+  }
+}
+
+@media (max-width: 420px) {
+  .banner__hero {
+    min-height: 360px;
+  }
+  .banner__title {
+    font-size: 1.6rem;
+  }
+  .banner__content {
+    padding: 0 12px 40px;
   }
 }
 </style>

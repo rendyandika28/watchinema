@@ -46,9 +46,9 @@
         <Skeleton height="16px" width="60px" radius="4px" />
       </div>
       <div class="row__track">
-        <div class="row__card" v-for="i in 8" :key="i">
+        <div class="row__card row__card--sk" v-for="i in 8" :key="i">
           <Skeleton width="170px" height="255px" radius="var(--radius-md)" />
-          <Skeleton height="16px" width="120px" radius="4px" style="margin-top: 8px" />
+          <Skeleton height="16px" width="120px" radius="4px" />
         </div>
       </div>
     </div>
@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import axios from "../data/axios.js";
+import { getCached } from "../data/axios.js";
 import Skeleton from "./Skeleton";
 
 export default {
@@ -74,7 +74,7 @@ export default {
     };
   },
   async mounted() {
-    const { data } = await axios.get(this.fetchUrl);
+    const { data } = await getCached(this.fetchUrl);
     this.movies = data.results || [];
     this.loading = false;
   },
@@ -95,6 +95,7 @@ export default {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
@@ -138,6 +139,12 @@ export default {
   scroll-snap-align: start;
   width: 170px;
   text-decoration: none;
+}
+
+.row__card--sk {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .row__frame {

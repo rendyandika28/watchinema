@@ -34,7 +34,7 @@
 import Header from "../components/Header";
 import FilmCard from "../components/FilmCard";
 import Skeleton from "../components/Skeleton";
-import axios from "../data/axios";
+import { getCached } from "../data/axios";
 import Footer from "../components/Footer";
 
 export default {
@@ -72,7 +72,7 @@ export default {
   async loadGenre(link) {
     this.fetchUrl = link;
     this.loading = true;
-    const { data } = await axios.get(link);
+    const { data } = await getCached(link);
     this.movies = data.results || [];
     this.loading = false;
     this.showingBanner = this.movies[
@@ -140,13 +140,24 @@ export default {
 
 @media (max-width: 768px) {
   .genres__hero {
-    padding-left: 24px;
+    height: 220px;
+    padding: 0 24px;
   }
   .genres__hero h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
   .genres__grid {
     padding: 20px 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .genres__hero {
+    height: 180px;
+    padding: 0 16px;
+  }
+  .genres__hero h1 {
+    font-size: 1.4rem;
   }
 }
 </style>

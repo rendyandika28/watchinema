@@ -47,8 +47,9 @@ export default {
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-* {
+*, *::before, *::after {
   margin: 0;
+  box-sizing: border-box;
 }
 
 body {
@@ -59,6 +60,11 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 ::-webkit-scrollbar {

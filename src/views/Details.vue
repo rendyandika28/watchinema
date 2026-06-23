@@ -43,9 +43,11 @@
         </div>
       </div>
       <div class="details__layout details__sk" v-else>
-        <Skeleton width="280px" height="420px" radius="var(--radius-lg)" />
+        <Skeleton width="280px" height="420px" radius="var(--radius-lg)" class="details__sk-poster" />
         <div class="details__sk-info">
-          <Skeleton height="48px" width="90%" radius="var(--radius-md)" />
+          <div class="details__sk-title-w">
+            <Skeleton height="48px" radius="var(--radius-md)" />
+          </div>
           <div class="details__sk-meta">
             <Skeleton width="60px" height="18px" radius="4px" />
             <Skeleton width="40px" height="18px" radius="4px" />
@@ -87,7 +89,7 @@ import Header from "../components/Header";
 import Button from "../components/Button";
 import RowFilm from "../components/RowFilm";
 import Skeleton from "../components/Skeleton";
-import axios from "../data/axios";
+import { getCached } from "../data/axios";
 import { getTrailerKey } from "../utils/trailer";
 
 const WATCHLIST_KEY = "watchinema_watchlist";
@@ -143,7 +145,7 @@ export default {
   methods: {
     async loadMovie(to) {
       this.movieID = to ? to.params.id : this.$route.params.id;
-      const { data } = await axios.get("/movie/" + this.movieID);
+      const { data } = await getCached("/movie/" + this.movieID);
       this.movie = data;
       this.movieGenres = data.genres ? data.genres.map((g) => g.name) : [];
     },
@@ -365,6 +367,14 @@ export default {
   pointer-events: none;
 }
 
+.details__sk-poster {
+  flex-shrink: 0;
+}
+
+.details__sk-title-w {
+  max-width: 90%;
+}
+
 .details__sk-info {
   flex: 1;
   display: flex;
@@ -400,8 +410,18 @@ export default {
   .details__poster {
     width: 200px;
   }
+  .details__sk-poster {
+    width: 200px;
+    height: 300px;
+  }
+  .details__title {
+    font-size: 2rem;
+  }
   .details__meta {
     justify-content: center;
+  }
+  .details__overview {
+    text-align: left;
   }
   .details__actions {
     justify-content: center;
@@ -414,6 +434,22 @@ export default {
     right: 8px;
     width: 32px;
     height: 32px;
+  }
+}
+
+@media (max-width: 420px) {
+  .details__layout {
+    padding: 70px 16px 30px;
+  }
+  .details__poster {
+    width: 160px;
+  }
+  .details__sk-poster {
+    width: 160px;
+    height: 240px;
+  }
+  .details__title {
+    font-size: 1.5rem;
   }
 }
 </style>

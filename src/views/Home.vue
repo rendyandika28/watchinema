@@ -72,4 +72,11 @@ export default {
   color: var(--text-patina);
   padding: 16px 48px;
 }
+
+@media (max-width: 768px) {
+  .home__genres-title {
+    padding: 16px 20px;
+    font-size: 14px;
+  }
+}
 </style>
