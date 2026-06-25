@@ -1,6 +1,6 @@
 # Watchinema
 
-Bioskop mini dalam genggaman — cari film, tonton trailer, simpan watchlist. Tanpa login.
+Mini cinema in your pocket — browse movies, watch trailers, save watchlist. No login required.
 
 ### Tech Stack
 
@@ -18,7 +18,7 @@ Zero runtime deps besides Vue, Router, and Meta. HTTP via native `fetch`, video 
 
 ```
 cp .env.example .env
-# isi VUE_APP_TMDB_KEY dengan API key dari https://themoviedb.org
+# fill VUE_APP_TMDB_KEY with your API key from https://themoviedb.org
 npm install
 npm run serve
 ```
