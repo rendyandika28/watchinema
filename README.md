@@ -2,6 +2,8 @@
 
 Mini cinema in your pocket — browse movies, watch trailers, save watchlist. No login required.
 
+![Project Preview](https://rdydika.dev/_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fdpaqb7s4w%2Fimage%2Fupload%2Fq_auto%2Cf_auto%2Fv1782218477%2Frdydika%2Fportfolio%2FWatchinema%2520Large.jpg&w=1536&q=75)
+
 ### Tech Stack
 
 - **Vue 2** — SPA with route-level code splitting
