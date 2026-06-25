@@ -1,64 +1,31 @@
 # Watchinema
 
-![Project Preview](https://i.ibb.co/16d2dWk/Screenshot-2023-08-27-at-11-12-47.png)
-
-## Description
-
-This web application help you to find bunch of movies, watch the trailer, see the movie description, set your favorite movie and many more. This web application is free to use.
+Bioskop mini dalam genggaman — cari film, tonton trailer, simpan watchlist. Tanpa login.
 
 ### Tech Stack
 
-What stack to build this amazing web application?
+- **Vue 2** — SPA
+- **Vue Router** — history mode, code-splitting per route
+- **Vue Meta** — dynamic OG tags / SEO per page
+- **TMDB API** — data film & trailer
+- **Pure CSS** — dark cinema theme, skeleton shimmer, no UI lib
 
-- **Vue** as the framework for building user interfaces.
-- **Firebase** as the Database for this web application
-- **Package that we use :**
-  - **vuex** as the global store for Vue Application
-  - **vue-router** as the router
-  - **axios** as a promise-based HTTP client
-  - **movie-trailer**
-  - **vue-youtube**
-  - **vue-sweetalert2**
-  - **vue-toast-notification**
+### Dependency Philosophy
 
-**Watchinema** use [themoviedb](themoviedb.org) for the data source
+Zero runtime deps besides Vue, Router, and Meta. HTTP via native `fetch`, video embed via native `<iframe>`, notifications via native `alert()`.
 
-When develop this web application with Vue, i use some features from the documentation of Vue like :
-
-- Interpolation
-- Directives
-- Computed Properties
-- Watchers Properties
-- Data Properties
-- Method Properties
-- Created Properties
-- Mounted Properties
-- Class & Style Bindings
-- Conditional Rendering
-- List Rendering (v-for)
-- Event Handling
-- Form Input Bindings (v-model)
-- Emit
-- Props
-- Custom Event
-- Routing
-
-as Stanley said to Neuman in film (The Mask)
-
-> I'm going to prove it to you. Just sit back and **enjoy the ride**, Mr. Expert.
->
-> Enjoooy! :v:
-
-## Project setup
-
-Install the package first
+### Setup
 
 ```
+cp .env.example .env
+# isi VUE_APP_TMDB_KEY dengan API key dari https://themoviedb.org
 npm install
-```
-
-Run the project
-
-```
 npm run serve
+```
+
+### Build
+
+```
+npm run build
+npx serve -s dist -l 3000
 ```
